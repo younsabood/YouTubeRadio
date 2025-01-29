@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشغل الفيديو</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>مشغل الفيديوهات من يوتيوب</h1>
+        
+        <!-- إدخال رابط يوتيوب -->
+        <input type="text" id="youtubeLink" placeholder="أدخل رابط يوتيوب هنا">
+        <button id="addLink">أضف الرابط</button>
+        
+        <!-- زر لتوسيع/تصغير قائمة الروابط -->
+        <button id="toggleLinksButton">إظهار الروابط</button>
+        
+        <ul id="linksList"></ul>
+        
+        <!-- مشغل الفيديو -->
+        <iframe id="videoPlayer" width="0" height="0" style="display:none;" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        
+        <!-- أزرار التنقل بين الفيديوهات -->
+        <div class="navigation-buttons">
+            <button id="prevButton" disabled>السابق</button>
+            <button id="nextButton" disabled>التالي</button>
+        </div>
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
