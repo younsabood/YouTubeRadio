@@ -2,11 +2,11 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
-const http = require('http'); // استخدام http لإنشاء الخادم
-const socketIo = require('socket.io'); // إضافة Socket.IO
+const http = require('http');
+const socketIo = require('socket.io');
 const app = express();
-const server = http.createServer(app); // تفعيل الخادم باستخدام http
-const io = socketIo(server); // ربط Socket.IO بالخادم
+const server = http.createServer(app);
+const io = socketIo(server);
 
 // إعدادات الـ CORS للسماح بالوصول من جميع المصادر
 app.use(cors());
@@ -14,12 +14,12 @@ app.use(cors());
 // لتفسير البيانات الواردة بتنسيق JSON
 app.use(express.json());
 
-// مسار لخدمة الملفات الثابتة مثل HTML و CSS و JS
-app.use(express.static(path.join(__dirname, 'public')));
+// تقديم الملفات الثابتة (HTML, CSS, JS) من الجذر مباشرة
+app.use(express.static(path.join(__dirname)));
 
 // مسار لعرض صفحة index.html عند الوصول إلى الجذر
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // دالة لقراءة الروابط من ملف data.json
@@ -72,27 +72,22 @@ app.post('/links', (req, res) => {
 
 // مسار DELETE لحذف رابط من data.json
 app.delete('/links/:index', (req, res) => {
-    const index = parseInt(req.params.index, 10); // تأكد من تحويل index إلى رقم صحيح
+    const index = parseInt(req.params.index, 10);
     const links = readLinks();
 
-    console.log('الروابط الحالية:', links); // طباعة الروابط الحالية للتحقق من البيانات
-    console.log('الفهرس المرسل:', index); // طباعة الفهرس المرسل للتحقق
+    console.log('الروابط الحالية:', links);
+    console.log('الفهرس المرسل:', index);
 
-    // التأكد من أن الـ index موجود في المصفوفة
     if (isNaN(index) || index < 0 || index >= links.length) {
         return res.status(404).json({ message: 'رابط غير موجود' });
     }
 
-    // إزالة الرابط من المصفوفة
     const deletedLink = links.splice(index, 1)[0]; // حذف الرابط المحدد
 
-    // كتابة التغييرات إلى ملف data.json
     writeLinks(links);
 
-    // إرسال التحديث إلى جميع المتصلين
     io.emit('allLinks', links);
 
-    // إرسال استجابة بنجاح مع الرابط المحذوف
     return res.json({ message: `تم حذف الرابط: ${deletedLink}` });
 });
 
@@ -100,16 +95,13 @@ app.delete('/links/:index', (req, res) => {
 io.on('connection', (socket) => {
     console.log('مستخدم جديد متصل');
 
-    // إرسال جميع الروابط للمستخدم الجديد
     const links = readLinks();
     socket.emit('allLinks', links);
 
-    // الاستماع لأحداث تشغيل الفيديو
     socket.on('playVideo', (link) => {
         io.emit('playVideo', link);
     });
 
-    // التعامل مع قطع الاتصال
     socket.on('disconnect', () => {
         console.log('مستخدم غير متصل');
     });
